@@ -1,0 +1,32 @@
+#!/bin/bash
+
+if [ ! -z "$1" -a "$1" != " " -a ! -z "$2" -a "$2" != " " ]; then
+	device_path="$HOME/Library/Developer/CoreSimulator/Devices/$1/data/Containers/Data/Application"
+	raw_path=$(find $device_path -path "*/tmp/$2")
+	app_document_path=${raw_path///tmp*/}/Documents/
+	if [ -z "$3" -o "$3" == " " ]; then
+		echo "Available db files for $2:"
+		find $app_document_path -name '*.db' | sed 's#.*/##' | while read line; do
+			echo -	$line 
+		done
+		exit
+	else
+		if [ ! -z "$4" -a "$4" != " " ]; then
+			sqlite3 $app_document_path$3 "${4}"
+		else
+			echo "Please provide a sql statment to execute"
+		fi
+	fi
+	# 
+else
+	echo "Error, correct syntax is:"
+	echo "sqlios {device-id} {package-name} {database-name} {query}"
+	echo
+	echo "Or for listing the available db files:"
+	echo "sqlios {device-id} {package-name}"
+	echo
+	echo "Get device id using \"instruments -s devices\""
+
+fi
+
+
